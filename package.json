@@ -1,7 +1,7 @@
 {
   "name": "cripta",
   "description": "A layer of encryption a little too judicious",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,11 +14,7 @@
   "scripts": {
     "bench": "tsx tests/benchmark/*.bench.ts",
     "build": "tsup src/index.ts --dts --format esm",
-    "prepublishOnly": "npm run build"
-  },
-  "dependencies": {
-    "hasha": "^6.0.0",
-    "stable-hash": "^0.0.5"
+    "prepublishOnly": "bun run build"
   },
   "devDependencies": {
     "bun-types": "^1.2.13",
