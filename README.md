@@ -21,6 +21,36 @@ npm i cripta
 yarn i cripta
 ```
 
+## Usage
+
+```ts
+import { cripta } from 'cripta'
+
+const instance = cripta({ key: 'your-secret-key' })
+
+const encoded = instance.encode('hic sunt dracones')
+console.log('Encoded object: ', encoded)
+console.log('Decoded object: ', instance.decode(encoded))
+```
+
+The Cripta can encrypt all primitive types: `array`, `object`, `string`, `number`, `bigint`, `boolean`, `Symbol`, `undefined` and `null`.
+
+See an example of object encryption:
+
+```ts
+// encoding
+const encoded = instance.encode({
+  name: 'John Doe',
+  email: 'john@example.com'
+})
+
+console.log('Encoded object: ', encoded)
+
+// retrieve the object from encoded value
+const decoded = instance.decode(encoded)
+console.log('Decoded object: ', decoded)
+```
+
 ## License
 
 This package is licensed under the [MIT license](https://github.com/attla/cripta/blob/main/LICENSE) © [Zunq](https://zunq.com)
