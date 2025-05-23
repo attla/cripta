@@ -108,7 +108,6 @@ export class Creator {
     return this.issuedBy(issuer)
   }
 
-  // TODO: tipar keyof Claim....
   withClaim(claim: string, value: any): this {
     this.token.header.set(claim, value)
     return this
