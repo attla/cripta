@@ -183,7 +183,7 @@ export class Token {
 
   same(entropy: string | number = '') {
     this.#same = true
-    this.header.set('e', this.hash(entropy || this.#cripta.config.key?.toString('hex')))
+    this.header.set('e', this.hash(entropy || this.#cripta.config.key?.toString('hex')).substring(0, 6))
     this.#cripta.config.entropy = 0
   }
 
