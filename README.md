@@ -29,8 +29,8 @@ import { cripta } from 'cripta'
 const instance = cripta({ key: 'your-secret-key' })
 
 const encoded = instance.encode('hic sunt dracones')
-console.log('Encoded object: ', encoded)
-console.log('Decoded object: ', instance.decode(encoded))
+console.log('Encoded: ', encoded)
+console.log('Decoded: ', instance.decode(encoded))
 ```
 
 The Cripta can encrypt all primitive types: `array`, `object`, `string`, `number`, `bigint`, `boolean`, `Symbol`, `undefined` and `null`.
