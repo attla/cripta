@@ -1,6 +1,6 @@
+import { Timestamp } from 't0n'
 import { Claim } from './claim'
 import { Token } from './token'
-import Util from '../utils/date'
 
 export class Parser {
   protected token: Token = new Token()
@@ -37,7 +37,7 @@ export class Parser {
   }
 
   validAt(date: number | Date): this {
-    this.token.claims.set(Claim.NOW, Util.timestamp(date))
+    this.token.claims.set(Claim.NOW, Timestamp.timestamp(date))
     return this
   }
   expiresAt(date: number | Date): this {

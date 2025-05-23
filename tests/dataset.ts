@@ -1,4 +1,4 @@
-import { sha256 } from '@/hash'
+import { sha256 } from 't0n'
 
 export const strings = {
   alfa: 'Now I am become Death, the destroyer of worlds.',

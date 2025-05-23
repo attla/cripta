@@ -1,7 +1,7 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 import { Config } from './config'
 import { TYPE, AcceptedValue, ConfigOptions } from './types'
-import { sha256 } from '@/hash'
+import { sha256 } from 't0n'
 
 export class Factory {
   private separator = '\x1f'

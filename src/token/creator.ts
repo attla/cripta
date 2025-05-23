@@ -1,6 +1,6 @@
 import { Claim } from './claim'
 import { Token } from './token'
-import Util from '../utils/date'
+import { Timestamp } from 't0n'
 
 export class Creator {
   protected token: Token = new Token()
@@ -37,7 +37,7 @@ export class Creator {
   }
 
   expiresAt(date: number | Date): this {
-    this.token.header.set(Claim.EXPIRATION_TIME, Util.timestamp(date))
+    this.token.header.set(Claim.EXPIRATION_TIME, Timestamp.timestamp(date))
     return this
   }
   expiration(date: number | Date): this {
@@ -48,7 +48,7 @@ export class Creator {
   }
 
   canOnlyBeUsedAfter(date: number | Date): this {
-    this.token.header.set(Claim.NOT_BEFORE, Util.timestamp(date))
+    this.token.header.set(Claim.NOT_BEFORE, Timestamp.timestamp(date))
     return this
   }
   notBefore(date: number | Date): this {
@@ -59,7 +59,7 @@ export class Creator {
   }
 
   issuedAt(date: number | Date): this {
-    this.token.header.set(Claim.ISSUED_AT, Util.timestamp(date))
+    this.token.header.set(Claim.ISSUED_AT, Timestamp.timestamp(date))
     return this
   }
   issuedBefore(date: number | Date): this {

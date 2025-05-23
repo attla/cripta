@@ -1,5 +1,5 @@
 import { Config } from '@/config'
-import { Base64 } from '@/utils/base64'
+import { Base64 } from 't0n'
 import { key, config, secret } from './dataset'
 
 describe('Config', () => {

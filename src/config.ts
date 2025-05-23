@@ -1,7 +1,5 @@
+import { Envir, sha256, toInt } from 't0n'
 import type { ConfigOptions } from './types'
-import { sha256 } from './hash'
-import Envir from '@/utils/envir'
-import toInt from '@/utils/toint'
 
 export class Config {
   public entropy: number = 4

@@ -1,9 +1,7 @@
 import crypto from 'node:crypto'
+import { DataBag, md5, Timestamp } from 't0n'
 import { Claim } from './claim'
-import Util from '../utils/date'
-import DataBag from '../utils/databag'
 import { Config, Cripta } from '../'
-import { md5 } from '@/hash'
 
 export class Token {
   claims: DataBag = new DataBag()
@@ -124,12 +122,12 @@ export class Token {
     const claim = Claim.EXPIRATION_TIME
     if (!this.header.has(claim)) return false
 
-    return Util.timestamp(date) - this.#leeway >= this.header.get(claim)
+    return Timestamp.timestamp(date) - this.#leeway >= this.header.get(claim)
   }
 
   private validAfter(claim: string, date: number | Date | null = null): boolean {
     if (!this.header.has(claim)) return true
-    return Util.timestamp(date) + this.#leeway >= this.header.get(claim)
+    return Timestamp.timestamp(date) + this.#leeway >= this.header.get(claim)
   }
 
   notBefore(date: number | Date | null = null): boolean {
