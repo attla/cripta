@@ -20,6 +20,7 @@ export class Config {
   }
 
   public setKey(key?: string): this {
+    if (typeof key !== 'string') return this
     key = key?.trim()
     if (!key) return this
 

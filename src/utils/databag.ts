@@ -79,7 +79,7 @@ export default class DataBag<T = any> implements Baggable<T> {
   }
 
   public toJson(options: number = 0): string {
-    return JSON.stringify(this.jsonSerialize(), null, options)
+    return JSON.stringify(this.all(), null, options)
   }
 
   public [Symbol.iterator](): IterableIterator<[string, T]> {

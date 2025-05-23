@@ -1,26 +1,38 @@
 import { Bench } from 'tinybench'
-import { Factory } from '@/factory'
 import chalk from 'chalk'
+import { Factory } from '@/factory'
+import { Token } from '@/token'
 
 const bench = new Bench()
 
 const factory = new Factory({ key: 'secret' })
+const create = Token.create().secret('secret')
 
-const payload = { id: 1, name: 'Test', active: true, items: Array(1000).fill('data') }
-const encoded = factory.encode(payload)
+const body = { id: 1, name: 'Test', active: true, items: Array(1000).fill('data') }
+const encoded = factory.encode(body)
+const tokenEncoded = create.body(body).get()
 
-bench
+await bench
   .add('Cripta#encode', () => {
-    factory.encode(payload)
+    factory.encode(body)
   })
   .add('Cripta#decode', () => {
     factory.decode(encoded)
   })
   .add('Cripta#encode-decode', () => {
-    factory.decode(factory.encode(payload))
+    factory.decode(factory.encode(body))
   })
-
-await bench.run()
+  // Token
+  .add('Token#create', () => {
+    create.body(body).get()
+  })
+  .add('Token#parse', () => {
+    Token.parse(tokenEncoded).get()
+  })
+  .add('Token#encode-decode', () => {
+    Token.parse(Token.create().secret('secret').body(body).get()).get()
+  })
+  .run()
 
 const tasks = bench.tasks
   .map(task => {

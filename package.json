@@ -1,7 +1,7 @@
 {
   "name": "cripta",
   "description": "A layer of encryption a little too judicious",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,15 +29,16 @@
   },
   "files": ["dist"],
   "publishConfig": {
-    "access": "public",
     "registry": "https://registry.npmjs.org"
   },
   "author": "Zunq <open-source@zunq.com>",
+  "license": "MIT",
   "homepage": "https://zunq.dev",
   "repository": "git://github.com/attla/cripta",
   "bugs": "https://github.com/attla/cripta/issues",
   "keywords": [
     "cripta",
+    "attla",
     "crypta",
     "crypto",
     "cipher",
@@ -49,6 +50,10 @@
     "decription",
     "cryptography",
     "typescript",
+    "tokenizer",
+    "data-to-token",
+    "token",
+    "jwt",
     "bitwise",
     "bit-wise",
     "hash",

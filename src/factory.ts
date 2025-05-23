@@ -75,9 +75,7 @@ export class Factory {
     this.validateConfig()
 
     const combined = this.baseDecode(data)
-
     const eLength = this.config.entropy
-
     const entropy = eLength ? combined.subarray(-eLength) : Buffer.alloc(0)
     const ciphered = eLength ? combined.subarray(0, -eLength) : combined
 

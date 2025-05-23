@@ -1,11 +1,3 @@
-export interface ConfigOptions {
-  key?: string,
-  entropy?: number,
-  baseAlphabet?: string,
-  alphabet?: string,
-  seed?: number,
-}
-
 export type AcceptedValue = null | boolean | string | number | bigint | Array<any> | object | Symbol | undefined
 
 export const INDEX_TYPE = [
@@ -26,3 +18,9 @@ export const INDEX_TYPE = [
 export const TYPE: Record<typeof INDEX_TYPE[number], number> = Object.fromEntries(
   INDEX_TYPE.map((type, index) => [type, index])
 ) as Record<typeof INDEX_TYPE[number], number>
+
+export type ConfigOptions = {
+  key?: string,
+  entropy?: number,
+  seed?: number,
+}

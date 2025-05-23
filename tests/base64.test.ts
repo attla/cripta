@@ -1,4 +1,4 @@
-import { Base64, UrlSafeBase64 } from '@/base64'
+import { Base64, UrlSafeBase64 } from '@/utils/base64'
 import { strings } from './testcase'
 
 describe('Base64: Encode & Decode ', () => {

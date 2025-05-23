@@ -1,8 +1,10 @@
-import { Factory } from './factory'
+import { Factory as Cripta } from './factory'
 import { Config } from './config'
 import type { ConfigOptions } from './types'
 
-export { Config, Factory }
+export { Config, Cripta }
 export * from './types'
 
-export const cripta = (config?: ConfigOptions | Config): Factory => new Factory(config)
+export const cripta = (config?: ConfigOptions | Config): Cripta => new Cripta(config)
+
+export * from './token'

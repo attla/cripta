@@ -27,7 +27,6 @@ export class Base64 {
   public static toString(data: any, type?: string): string | Uint8Array | ArrayBuffer {
     type ??= typeof data
     if (Buffer.isBuffer(data)) {
-      console.log('bbbbbbbbbbb')
       return data
     }
     if (type === 'string') return data
