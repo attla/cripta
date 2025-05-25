@@ -153,9 +153,8 @@ export class Factory {
     const result = Buffer.allocUnsafe(data.length)
     const keyLength = key.length
 
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++)
       result[i] = data[i] ^ key[i % keyLength]
-    }
 
     return result
   }
@@ -183,17 +182,27 @@ export class Factory {
 
   baseEncode(data: Buffer): string {
     return this.maybeUseAlphabet(
-      data.toString('base64url'),
+      data.toString('base64').replace(/[=+/]/g, (char) => {
+        switch (char) {
+          case '=': return ''
+          case '+': return '-'
+          case '/': return '_'
+          default: return char
+        }
+      }),
+      // data.toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_'),
       this.config.baseAlphabet,
       this.config.alphabet
     )
   }
 
+  #PADDING_CACHE = ['', '===', '==', '=']
   baseDecode(data: string): Buffer {
-    return Buffer.from(this.maybeUseAlphabet(
-      data,
-      this.config.alphabet,
-      this.config.baseAlphabet
-    ), 'base64url')
+    data = this.maybeUseAlphabet(data, this.config.alphabet, this.config.baseAlphabet)
+    const remainder = data.length % 4
+    if (remainder) data += this.#PADDING_CACHE[remainder]
+    return Buffer.from(data.replace(/[-_]/g, (char) => char === '-' ? '+' : '/'), 'base64')
+    // if (remainder) data += '='.repeat(4 - remainder)
+    // return Buffer.from(data.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
   }
 }

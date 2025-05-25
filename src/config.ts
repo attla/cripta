@@ -2,14 +2,14 @@ import { Envir, sha256, toInt } from 't0n'
 import type { ConfigOptions } from './types'
 
 export class Config {
-  public entropy: number = 4
-  public baseAlphabet: string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_'
+  entropy: number = 4
+  baseAlphabet: string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_'
 
-  public key?: Buffer
-  public seed?: number
-  public alphabet?: string
+  key?: Buffer
+  seed?: number
+  alphabet?: string
 
-  private static sortedCache: Record<string, any> = {}
+  static #sortedCache: Record<string, any> = {}
 
   constructor(opts?: ConfigOptions) {
     this.setKey(opts?.key || Envir.get<string>('APP_KEY', Envir.get<string>('KEY')))
@@ -17,14 +17,13 @@ export class Config {
       .setEntropy(opts?.entropy)
   }
 
-  public setKey(key?: string): this {
+  setKey(key?: string): this {
     if (typeof key !== 'string') return this
     key = key?.trim()
     if (!key) return this
 
-    const base = key.indexOf('base64:') > -1 ? 'base64' : (key.indexOf('base64url:') > -1 ? 'base64url' : '')
-   if (base) {
-      this.key = sha256(Buffer.from(key.substring(7), base), 'buffer')
+    if (key.indexOf('base64:') > -1) {
+      this.key = sha256(Buffer.from(key.substring(7), 'base64'), 'buffer')
       return this
     }
 
@@ -32,7 +31,7 @@ export class Config {
     return this
   }
 
-  public setSeed(value: any): this {
+  setSeed(value: any): this {
     if (!value) return this
 
     const numValue = typeof value === 'number' ? Math.abs(value) : toInt(value)
@@ -44,7 +43,7 @@ export class Config {
     return this
   }
 
-  public setEntropy(value: any): this {
+  setEntropy(value: any): this {
     if (value === null || value === undefined)
       return this
 
@@ -52,12 +51,12 @@ export class Config {
     return this
   }
 
-  public getInt(key: string): number {
+  getInt(key: string): number {
     const value = (this as any)[key]
     return typeof value === 'number' ? value : toInt(value)
   }
 
-  private sortSeed<T extends string | string[]>(data: T, seed: number | string | null = null): T {
+  sortSeed<T extends string | string[]>(data: T, seed: number | string | null = null): T {
     if (!seed) return data
 
     const numericSeed = typeof seed === 'string' ? this.hashStringToNumber(seed) : seed
@@ -65,11 +64,11 @@ export class Config {
     const dataString = Array.isArray(data) ? JSON.stringify(data) : data as string
     const key = `${this.hashStringToNumber(dataString)}-${numericSeed}`
 
-    if (Config.sortedCache[key])
-      return Config.sortedCache[key] as T
+    if (Config.#sortedCache[key])
+      return Config.#sortedCache[key] as T
 
     const isArray = Array.isArray(data)
-    const items = isArray ? [...data] : this.splitUnicodeString(data)
+    const items = isArray ? [...data] : this.#splitUnicodeString(data)
 
     const rng = this.createSeededRNG(numericSeed)
     const randomized = items
@@ -78,15 +77,15 @@ export class Config {
         .map(x => x.item)
 
     const result = (isArray ? randomized : randomized.join('')) as T
-    Config.sortedCache[key] = result
+    Config.#sortedCache[key] = result
     return result
   }
 
-  private splitUnicodeString(str: string): string[] {
+  #splitUnicodeString(str: string): string[] {
     return str.split(/(?!^)(?=.)/u).filter(Boolean)
   }
 
-  private createSeededRNG(seed: number): () => number {
+  createSeededRNG(seed: number): () => number {
     return function() {
       seed |= 0
       seed = seed + 0x6D2B79F5 | 0
@@ -96,7 +95,7 @@ export class Config {
     }
   }
 
-  private hashStringToNumber(str: string): number {
+  hashStringToNumber(str: string): number {
     let hash = 5381
     for (let i = 0; i < str.length; i++)
       hash = (hash * 33) ^ str.charCodeAt(i)

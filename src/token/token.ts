@@ -1,5 +1,5 @@
 import crypto from 'node:crypto'
-import { DataBag, md5, Timestamp } from 't0n'
+import { DataBag, md5, sha256, Timestamp } from 't0n'
 import { Claim } from './claim'
 import { Config, Cripta } from '../'
 
@@ -41,10 +41,10 @@ export class Token {
   }
 
   encodedHeader(): string {
-    this.newEntropy()
+    this.#newEntropy()
 
     return this.headerString = this.#cripta.encode(
-      this.#same ? this.header.all() : this.randomizeObject(this.header.all())
+      this.#same ? this.header.all() : this.#randomizeObject(this.header.all())
     )
   }
 
@@ -62,7 +62,7 @@ export class Token {
   }
 
   encodedBody(): string {
-    return this.bodyString = this.#cripta.onceKey(this.entropy()).encode(this.body)
+    return this.bodyString = this.#cripta.onceKey(this.#entropy()).encode(this.body)
   }
 
   setSignature(signature: string): this {
@@ -71,9 +71,9 @@ export class Token {
   }
 
   sign(): string {
-    return this.hash(
+    return this.#hash(
       this.headerString + this.bodyString,
-      this.secret + this.entropy()
+      this.secret + this.#entropy()
     )
   }
 
@@ -118,24 +118,24 @@ export class Token {
     return true
   }
 
-  public isExpired(date: number | Date | null = null): boolean {
+  isExpired(date: number | Date | null = null): boolean {
     const claim = Claim.EXPIRATION_TIME
     if (!this.header.has(claim)) return false
 
     return Timestamp.timestamp(date) - this.#leeway >= this.header.get(claim)
   }
 
-  private validAfter(claim: string, date: number | Date | null = null): boolean {
+  #validAfter(claim: string, date: number | Date | null = null): boolean {
     if (!this.header.has(claim)) return true
     return Timestamp.timestamp(date) + this.#leeway >= this.header.get(claim)
   }
 
   notBefore(date: number | Date | null = null): boolean {
-    return this.validAfter(Claim.NOT_BEFORE, date)
+    return this.#validAfter(Claim.NOT_BEFORE, date)
   }
 
   issuedBefore(date: number | Date | null = null): boolean {
-    return this.validAfter(Claim.ISSUED_AT, date)
+    return this.#validAfter(Claim.ISSUED_AT, date)
   }
 
   validate(claim: string, expected: any = null): boolean {
@@ -181,13 +181,13 @@ export class Token {
 
   same(entropy: string | number = '') {
     this.#same = true
-    this.header.set('e', this.hash(entropy || this.#cripta.config.key?.toString('hex')).substring(0, 6))
+    this.header.set('e', this.#hash(entropy || this.#cripta.config.key?.toString('hex')).substring(0, 6))
     this.#cripta.config.entropy = 0
   }
 
   unique() {
     this.#same = false
-    this.newEntropy()
+    this.#newEntropy()
     this.#cripta.config.entropy = 4
   }
 
@@ -196,11 +196,11 @@ export class Token {
     this.#leeway = typeof time === 'number' ? Math.abs(time) : 0
   }
 
-  private entropy(): string {
-    return this.header.get('e') || this.newEntropy()
+  #entropy(): string {
+    return this.header.get('e') || this.#newEntropy()
   }
 
-  private newEntropy(): string {
+  #newEntropy(): string {
     if (this.#same && this.header.has('e'))
       return this.header.get('e')
 
@@ -209,9 +209,9 @@ export class Token {
     return entropy
   }
 
-  private hash(data: any, secret: string | null = null): string {
+  #hash(data: any, secret: string | null = null): string {
     secret && this.#sameConfig.setKey(secret)
-    return this.#cripta.onceConfig(this.#sameConfig).encode(md5(String(data)))
+    return this.#cripta.onceConfig(this.#sameConfig).encode(sha256(String(data), 'binary').substring(0, 16))
   }
 
   getParts(token: string): string[] | false {
@@ -228,7 +228,7 @@ export class Token {
     ].join(this.#separator)
   }
 
-  private randomizeObject(obj: Record<string, any>): Record<string, any> {
+  #randomizeObject(obj: Record<string, any>): Record<string, any> {
     const keys = Object.keys(obj)
     const randomized: Record<string, any> = {}
 
