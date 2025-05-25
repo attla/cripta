@@ -211,7 +211,7 @@ export class Token {
 
   #hash(data: any, secret: string | null = null): string {
     secret && this.#sameConfig.setKey(secret)
-    return this.#cripta.onceConfig(this.#sameConfig).encode(sha256(String(data), 'binary').substring(0, 16))
+    return this.#cripta.onceConfig(this.#sameConfig).encode(sha256(String(data), 'binary').toString().substring(0, 16))
   }
 
   getParts(token: string): string[] | false {
