@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
-import { DataBag, md5, sha256, Timestamp } from 't0n'
+import { DataBag, Timestamp } from 't0n'
 import { Claim } from './claim'
-import { Config, Cripta } from '../'
+import { Config, Cripta, sha256 } from '../'
 
 export class Token {
   claims: DataBag = new DataBag()

@@ -1,4 +1,5 @@
-import { Envir, sha256, toInt } from 't0n'
+import { Envir, toInt } from 't0n'
+import { sha256 } from './hash'
 import type { ConfigOptions } from './types'
 
 export class Config {
