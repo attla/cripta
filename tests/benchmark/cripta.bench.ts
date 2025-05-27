@@ -2,15 +2,19 @@ import { Bench } from 'tinybench'
 import chalk from 'chalk'
 import { Factory } from '@/factory'
 import { Token } from '@/token'
+import { hash, compare } from '@/hash'
 
 const bench = new Bench()
 
-const factory = new Factory({ key: 'secret' })
-const create = Token.create().secret('secret')
+const key = 'secret'
+const factory = new Factory({ key })
+const create = Token.create().secret(key)
 
 const body = { id: 1, name: 'Test', active: true, items: Array(1000).fill('data') }
 const encoded = factory.encode(body)
 const tokenEncoded = create.body(body).get()
+
+const hashed = hash(key)
 
 await bench
   .add('Cripta#encode', () => {
@@ -31,6 +35,13 @@ await bench
   })
   .add('Token#encode-decode', () => {
     Token.parse(Token.create().secret('secret').body(body).get()).get()
+  })
+  // Hash
+  .add('Hash#hash', () => {
+    hash(key)
+  })
+  .add('Hash#compare', () => {
+    compare(key, hashed)
   })
   .run()
 
