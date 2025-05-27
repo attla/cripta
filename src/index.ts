@@ -8,3 +8,4 @@ export * from './types'
 export const cripta = (config?: ConfigOptions | Config): Cripta => new Cripta(config)
 
 export * from './token'
+export * from './hash'

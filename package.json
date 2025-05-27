@@ -1,7 +1,7 @@
 {
   "name": "cripta",
   "description": "A layer of encryption a little too judicious",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +17,7 @@
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
-    "t0n": "^0.1.1"
+    "t0n": "^0.1.2"
   },
   "devDependencies": {
     "bun-types": "^1.2.14",
