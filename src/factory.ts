@@ -182,7 +182,7 @@ export class Factory {
 
   baseEncode(data: Buffer): string {
     return this.maybeUseAlphabet(
-      data.toString('base64').replace(/[=+/]/g, (char) => {
+      data.toString('base64').replace(/[=+/]/g, char => {
         switch (char) {
           case '=': return ''
           case '+': return '-'
