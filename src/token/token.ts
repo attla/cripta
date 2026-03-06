@@ -110,7 +110,6 @@ export class Token {
       || !this.validate(Claim.ID)
       || !this.validate(Claim.SUBJECT)
       || !this.validateCustomClaims()
-      // TODO: validate ip, bwr, loc
     ) {
         return false
     }

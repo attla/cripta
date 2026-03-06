@@ -1,5 +1,5 @@
 import { Bench } from 'tinybench'
-import chalk from 'chalk'
+import { bold, gray, green } from 't0n/color'
 import { Factory } from '@/factory'
 import { Token } from '@/token'
 import { hash, compare } from '@/hash'
@@ -67,9 +67,9 @@ tasks.forEach((task, index) => {
   const line = `${task.name.padEnd(24)} ${ops} ops/sec ±${rme}% (${task.samples} samples)`
 
   if (index === 0) {
-    console.log(`🥇 ${chalk.green('Fastest')} → ${chalk.bold(line)}`)
+    console.log(`🥇 ${green('Fastest')} → ${bold(line)}`)
   } else {
     const diff = (((fastest.hz - task.hz) / fastest.hz) * 100).toFixed(2)
-    console.log(`   ${line} ${chalk.gray(`(${diff}% slower)`)}`)
+    console.log(`   ${line} ${gray(`(${diff}% slower)`)}`)
   }
 })
