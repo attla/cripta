@@ -13,13 +13,13 @@ export class Config {
   static #sortedCache: Record<string, any> = {}
 
   constructor(opts?: ConfigOptions) {
-    this.setKey(opts?.key || Envir.get<string>('APP_KEY', Envir.get<string>('KEY')))
+    this.setKey(opts?.key || Envir.get<string>('APP_KEY') || Envir.get<string>('KEY'))
       .setSeed(opts?.seed)
       .setEntropy(opts?.entropy)
   }
 
   setKey(key?: string): this {
-    if (typeof key !== 'string') return this
+    if (typeof key != 'string') return this
     key = key?.trim()
     if (!key) return this
 
@@ -35,7 +35,7 @@ export class Config {
   setSeed(value: any): this {
     if (!value) return this
 
-    const numValue = typeof value === 'number' ? Math.abs(value) : toInt(value)
+    const numValue = typeof value == 'number' ? Math.abs(value) : toInt(value)
 
     if (!this.seed || this.seed !== numValue)
       this.alphabet = this.sortSeed(this.baseAlphabet, numValue)
@@ -48,19 +48,19 @@ export class Config {
     if (value === null || value === undefined)
       return this
 
-    this.entropy = typeof value === 'number' ? Math.abs(value) : toInt(value)
+    this.entropy = typeof value == 'number' ? Math.abs(value) : toInt(value)
     return this
   }
 
   getInt(key: string): number {
     const value = (this as any)[key]
-    return typeof value === 'number' ? value : toInt(value)
+    return typeof value == 'number' ? value : toInt(value)
   }
 
   sortSeed<T extends string | string[]>(data: T, seed: number | string | null = null): T {
     if (!seed) return data
 
-    const numericSeed = typeof seed === 'string' ? this.hashStringToNumber(seed) : seed
+    const numericSeed = typeof seed == 'string' ? this.hashStringToNumber(seed) : seed
 
     const dataString = Array.isArray(data) ? JSON.stringify(data) : data as string
     const key = `${this.hashStringToNumber(dataString)}-${numericSeed}`

@@ -124,26 +124,26 @@ export class Factory {
 
     const type = typeof value
 
-    if (type === 'boolean')
+    if (type == 'boolean')
       return `${TYPE.boolean}${this.separator}${value ? '1' : '0'}`
 
-    if (type === 'string')
+    if (type == 'string')
       return `${TYPE.string}${this.separator}${value}`
 
-    if (type === 'number')
+    if (type == 'number')
       return `${Number.isInteger(value) ? TYPE.int : TYPE.float}${this.separator}${value}`
 
-    if (type === 'bigint')
+    if (type == 'bigint')
       return `${TYPE.bigint}${this.separator}${value.toString()}`
 
-    if (type === 'symbol')
+    if (type == 'symbol')
       // @ts-ignore
       return `${TYPE.symbol}${this.separator}${Symbol.keyFor(value) ?? value.toString()}`
 
     if (Array.isArray(value))
       return `${TYPE.array}${this.separator}${JSON.stringify(value)}`
 
-    if (type === 'object')
+    if (type == 'object')
       return `${TYPE.object}${this.separator}${JSON.stringify(value)}`
 
     return ''
@@ -164,7 +164,7 @@ export class Factory {
   }
 
   private maybeUseAlphabet(data: string, from?: string, to?: string): string {
-    if (!data || typeof data !== 'string' || !from || !to || from === to)
+    if (!data || typeof data != 'string' || !from || !to || from == to)
       return data
 
     return this.strtr(data, from, to)
@@ -201,7 +201,7 @@ export class Factory {
     data = this.maybeUseAlphabet(data, this.config.alphabet, this.config.baseAlphabet)
     const remainder = data.length % 4
     if (remainder) data += this.#PADDING_CACHE[remainder]
-    return Buffer.from(data.replace(/[-_]/g, (char) => char === '-' ? '+' : '/'), 'base64')
+    return Buffer.from(data.replace(/[-_]/g, (char) => char == '-' ? '+' : '/'), 'base64')
     // if (remainder) data += '='.repeat(4 - remainder)
     // return Buffer.from(data.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
   }

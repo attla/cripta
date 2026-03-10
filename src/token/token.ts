@@ -158,16 +158,19 @@ export class Token {
   }
 
   protected validateCustomClaims(): boolean {
-    const internal = ['e', ...Claim.ALL]
+    const internal = new Set(['e', ...Claim.ALL])
+
     const headers: Record<string, any> = {}
-    this.header.toArray().forEach(([key, value]) => {
-      if (!internal.includes(key)) headers[key] = value
-    })
+    for (const [key, value] of this.header) {
+      if (!internal.has(key))
+        headers[key] = value
+    }
 
     const claims: Record<string, any> = {}
-    this.claims.toArray().forEach(([key, value]) => {
-      if (!internal.includes(key) && !(key in headers)) claims[key] = value
-    })
+    for (const [key, value] of this.claims) {
+      if (!internal.has(key) && !headers[key])
+        claims[key] = value
+    }
 
     const all = { ...headers, ...claims }
 
@@ -229,17 +232,18 @@ export class Token {
 
   #randomizeObject(obj: Record<string, any>): Record<string, any> {
     const keys = Object.keys(obj)
-    const randomized: Record<string, any> = {}
 
     for (let i = keys.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [keys[i], keys[j]] = [keys[j], keys[i]]
+      const j = (Math.random() * (i + 1)) | 0
+      ;[keys[i], keys[j]] = [keys[j], keys[i]]
     }
 
-    keys.forEach(key => {
-      randomized[key] = obj[key]
-    })
+    const out: Record<string, any> = {}
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i]
+      out[k] = obj[k]
+    }
 
-    return randomized
+    return out
   }
 }

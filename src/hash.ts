@@ -10,7 +10,7 @@ function create(
   encoding?: Encoding | 'buffer'
 ): string | Buffer {
   const hash = createHash(algorithm)
-  typeof data === 'string' ? hash.update(data, 'utf8') : hash.update(data)
+  typeof data == 'string' ? hash.update(data, 'utf8') : hash.update(data)
   return !encoding || encoding === 'buffer' ? hash.digest() : hash.digest(encoding)
 }
 
@@ -55,7 +55,7 @@ export const SALT_MIN_LEN = 5
 export const HASH_LEN = 40 // max 43
 
 export function hash(plain: string, salt: string = '') {
-  if (!plain || typeof plain !== 'string' || typeof salt !== 'string') return ''
+  if (!plain || typeof plain != 'string' || typeof salt != 'string') return ''
 
   const length = plain.length
 
@@ -70,7 +70,7 @@ export function hash(plain: string, salt: string = '') {
 }
 
 export function compare(plain: string, encoded: string): boolean {
-  if (!plain || !encoded || typeof plain !== 'string' || typeof encoded !== 'string')
+  if (!plain || !encoded || typeof plain != 'string' || typeof encoded != 'string')
     return false
 
   const salt = getSalt(encoded)
@@ -85,7 +85,7 @@ export function getSalt(str: string) {
 }
 
 function randBytes(len: number): Buffer {
-  return typeof randomBytes === 'function' ? randomBytes(len) : randBytesFallback(len)
+  return typeof randomBytes == 'function' ? randomBytes(len) : randBytesFallback(len)
 }
 function randBytesFallback(len: number): Buffer {
   const bytes = Buffer.alloc(len)
