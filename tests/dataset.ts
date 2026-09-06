@@ -36,5 +36,5 @@ export const types: { [key: string]: any } = {
 }
 
 export const key = 'test-key'
-export const config = { key, entropy: 8 }
-export const secret = sha256(config.key, 'buffer')
+export const opt = { key, entropy: 8 }
+export const secret = await sha256(opt.key)

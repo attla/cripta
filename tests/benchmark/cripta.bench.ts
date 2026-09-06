@@ -1,47 +1,47 @@
 import { Bench } from 'tinybench'
 import { bold, gray, green } from 't0n/color'
-import { Factory } from '@/factory'
-import { Token } from '@/token'
+
 import { hash, compare } from '@/hash'
+import { create, parse } from '@/token'
+import { config, encode, decode } from '@/.'
 
 const bench = new Bench()
 
 const key = 'secret'
-const factory = new Factory({ key })
-const create = Token.create().secret(key)
+const conf = await config({ key })
 
 const body = { id: 1, name: 'Test', active: true, items: Array(1000).fill('data') }
-const encoded = factory.encode(body)
-const tokenEncoded = create.body(body).get()
+const encoded = await encode(body, conf)
+const tokenEncoded = await create(conf, body)
 
-const hashed = hash(key)
+const hashed = await hash(key)
 
 await bench
-  .add('Cripta#encode', () => {
-    factory.encode(body)
+  .add('Cripta#encode', async () => {
+    await encode(body, conf)
   })
-  .add('Cripta#decode', () => {
-    factory.decode(encoded)
+  .add('Cripta#decode', async () => {
+    await decode(encoded, conf)
   })
-  .add('Cripta#encode-decode', () => {
-    factory.decode(factory.encode(body))
+  .add('Cripta#encode-decode', async () => {
+    await decode(await encode(body, conf), conf)
   })
   // Token
-  .add('Token#create', () => {
-    create.body(body).get()
+  .add('Token#create', async () => {
+    await create(conf, body)
   })
-  .add('Token#parse', () => {
-    Token.parse(tokenEncoded).get()
+  .add('Token#parse', async () => {
+    await parse(conf, tokenEncoded)
   })
-  .add('Token#encode-decode', () => {
-    Token.parse(Token.create().secret('secret').body(body).get()).get()
+  .add('Token#encode-decode', async () => {
+    await parse(conf, await create(conf, body))
   })
   // Hash
-  .add('Hash#hash', () => {
-    hash(key)
+  .add('Hash#hash', async () => {
+    await hash(key)
   })
-  .add('Hash#compare', () => {
-    compare(key, hashed)
+  .add('Hash#compare', async () => {
+    await compare(key, hashed)
   })
   .run()
 

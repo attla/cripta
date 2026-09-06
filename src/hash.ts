@@ -1,80 +1,55 @@
-import { createHash, randomBytes } from 'node:crypto'
+import { toBytes, toString, randBetween, randBytes } from './utils'
 
-type HashAlgorithm = 'md5' | 'sha1' | 'sha256' | 'sha512'
-type BinaryToTextEncoding = 'base64' | 'base64url' | 'hex' | 'binary' | null
-type Encoding = BinaryToTextEncoding | 'buffer'
+export type HashAlgorithm = 'SHA-1' | 'SHA-256' | 'SHA-512'
 
-function create(
-  data: string | Buffer,
-  algorithm: HashAlgorithm,
-  encoding?: Encoding | 'buffer'
-): string | Buffer {
-  const hash = createHash(algorithm)
-  typeof data === 'string' ? hash.update(data, 'utf8') : hash.update(data)
-  return !encoding || encoding === 'buffer' ? hash.digest() : hash.digest(encoding)
+async function digest(
+  data: string | Uint8Array,
+  algorithm: HashAlgorithm
+) {
+  return crypto.subtle.digest(
+    algorithm, // @ts-ignore
+    typeof data === 'string' ? toBytes(data) : data
+  ) as unknown as Promise<Uint8Array>
 }
 
-export function md5(str: string): string
-export function md5(str: Buffer): Buffer
-export function md5(str: Buffer, encoding: 'buffer'): Buffer
-export function md5(str: string, encoding: 'buffer' | null | undefined): Buffer
-export function md5(str: string, encoding: Encoding): string
-export function md5(str: string | Buffer, encoding: Encoding = 'hex') {
-  return create(str, 'md5', encoding)
+export async function sha1(str: string | Uint8Array) {
+  return  new Uint8Array(await digest(str, 'SHA-1'))
 }
 
-export function sha1(str: string): string
-export function sha1(str: Buffer): Buffer
-export function sha1(str: Buffer, encoding: 'buffer'): Buffer
-export function sha1(str: string, encoding: 'buffer' | null | undefined): Buffer
-export function sha1(str: string, encoding: Encoding): string
-export function sha1(str: string | Buffer, encoding: Encoding = 'hex') {
-  return create(str, 'sha1', encoding)
+export async function sha256(str: string | Uint8Array) {
+  return new Uint8Array(await digest(str, 'SHA-256'))
 }
 
-export function sha256(str: string): string
-export function sha256(str: Buffer): Buffer
-export function sha256(str: Buffer, encoding: 'buffer'): Buffer
-export function sha256(str: string, encoding: 'buffer' | null | undefined): Buffer
-export function sha256(str: string, encoding: Encoding): string
-export function sha256(str: string | Buffer, encoding: Encoding = 'hex') {
-  return create(str, 'sha256', encoding)
-}
-
-export function sha512(str: string): string
-export function sha512(str: Buffer): Buffer
-export function sha512(str: Buffer, encoding: 'buffer'): Buffer
-export function sha512(str: string, encoding: 'buffer' | null | undefined): Buffer
-export function sha512(str: string, encoding: Encoding): string
-export function sha512(str: string | Buffer, encoding: Encoding = 'hex') {
-  return create(str, 'sha512', encoding)
+export async function sha512(str: string | Uint8Array) {
+  return  new Uint8Array(await digest(str, 'SHA-512'))
 }
 
 export const SALT_MAX_LEN = 16
 export const SALT_MIN_LEN = 5
 export const HASH_LEN = 40 // max 43
 
-export function hash(plain: string, salt: string = '') {
+export async function hash(plain: string, salt: string = ''): Promise<string> {
   if (!plain || typeof plain !== 'string' || typeof salt !== 'string') return ''
 
   const length = plain.length
 
   if (!salt)
-    salt = base(randBytes((SALT_MAX_LEN % length) || randBetween(SALT_MIN_LEN, SALT_MAX_LEN)).toString('base64'))
+    salt = base(randBytes((SALT_MAX_LEN % length) || randBetween(SALT_MIN_LEN, SALT_MAX_LEN)))
 
   const r = salt.length % 2
   const prefix = r ? salt : ''
   const suffix = r ? '' : salt
 
-  return prefix + base(createHash('sha256').update(Buffer.from(salt + plain)).digest('base64').substring(0, HASH_LEN)) + suffix
+  // @ts-ignore
+  return prefix + base(await sha256(salt + plain)).substring(0, HASH_LEN) + suffix
 }
 
-export function compare(plain: string, encoded: string): boolean {
+export async function compare(plain: string, encoded: string): Promise<boolean> {
   if (!plain || !encoded || typeof plain !== 'string' || typeof encoded !== 'string')
     return false
 
   const salt = getSalt(encoded)
-  return salt ? hash(plain, salt) === encoded : false
+  return salt ? (await hash(plain, salt)) === encoded : false
 }
 
 export function getSalt(str: string) {
@@ -84,24 +59,8 @@ export function getSalt(str: string) {
   return r && r % 2 ? str.slice(0, r) : str.slice(-r)
 }
 
-function randBytes(len: number): Buffer {
-  return typeof randomBytes === 'function' ? randomBytes(len) : randBytesFallback(len)
-}
-function randBytesFallback(len: number): Buffer {
-  const bytes = Buffer.alloc(len)
-  for (let i = 0; i < len; i++)
-    bytes[i] = Math.floor(Math.random() * 256) & 0xFF
-
-  return bytes
-}
-
-function randBetween(min: number, max: number) {
-  min = Math.ceil(min)
-  return Math.floor(Math.random() * (Math.floor(max) - min + 1)) + min
-}
-
-function base(data: string): string {
-  return data.replace(/[=+]/g, char => {
+function base(data: Uint8Array): string {
+  return btoa(toString(data)).replace(/[=+]/g, char => {
     switch (char) {
       case '=': return ''
       case '+': return '.'

@@ -1,128 +1,73 @@
-import { Config } from '@/config'
-import { Factory } from '@/factory'
-import { string, config as options } from './dataset'
-import { strings, types } from './testcase'
+import { config, encode as $encode, decode as $decode } from '@/cripta'
+import type { Config, Options } from '@/cripta'
+import { string, opt } from './dataset'
+import { types } from './testcase'
 
-let instances = new WeakMap<object, Factory>()
+const encode = async (opts: Options, val: any) => $encode(val, await config(opts))
+const decode = async <T = any>(opts: Options, val: any) => $decode(val, await config(opts)) as T
+const encodeAndDecode = async<T = any>(opts: Options, val: any) => decode(opts, await encode(opts, val))
 
-function cripta(opts: Config): Factory {
-  if (instances.has(opts))
-    return instances.get(opts)!
-  const instance = new Factory(opts)
-  instances.set(opts, instance)
-  return instance
-}
-
-const encode = (opts: Config, val: any): string => cripta(opts).encode(val)
-const decode = <T = any>(opts: Config, val: any): T => cripta(opts).decode(val) as T
-const encodeAndDecode = <T = any>(opts: Config, val: any): T => decode(opts, encode(opts, val))
-
-const config = new Config(options)
-const configWrong = new Config({ ...options, key: 'wrong-key' })
-const configSame = new Config({ ...options, entropy: 0 })
-const configSameWrong = new Config({ ...options, key: 'wrong-key', entropy: 0 })
-const configSeeded = new Config({ ...options, entropy: 0, seed: 42 })
-const configSeededWrong = new Config({ ...options, key: 'wrong-key', entropy: 0, seed: 42 })
+const optWrong = { ...opt, key: 'wrong-key' }
+const optSame = { ...opt, entropy: 0 }
+const optSameWrong = { ...opt, key: 'wrong-key', entropy: 0 }
+const optSeeded = { ...opt, entropy: 0, seed: 42 }
+const optSeededWrong = { ...opt, key: 'wrong-key', entropy: 0, seed: 42 }
 
 describe('Cripta', () => {
-  beforeEach(() => {
-    instances = new WeakMap<object, Factory>()
-  })
-
   it('throws on invalid config', () => {
-    expect(() => encode(new Config(), string)).toThrow()
+    expect(async () => await encode({}, string)).toThrow()
   })
 
-  describe('Config chaining with setConfig()', () => {
-    it.each(strings)('%s', (_, value) => {
-      const factory = new Factory(config).setConfig(configSame)
+  describe('Entropy', () => {
+    describe('Deterministic output (entropy = 0)', () => {
+      it.each(types)('%s should encode/decode correctly', async (_, value) => {
+        expect(await encodeAndDecode(optSame, value)).toStrictEqual(value)
+      })
 
-      const encodedWithWrong = encode(configSameWrong, value)
-      const encodedFromFactory = factory.encode(value)
+      it.each(types)('%s should always produce the same encoded string', async (_, value) => {
+        const results = await Promise.all(Array.from({ length: 6 }, async () => await encode(optSame, value)))
+        expect(new Set(results).size).toBe(1)
+      })
 
-      expect(encodedWithWrong).not.toBe(encodedFromFactory)
-      expect(factory.decode(encodedFromFactory)).toStrictEqual(value)
-    })
-  })
-
-  describe('Behavior with entropy', () => {
-    it('produces deterministic output with entropy=0', () => {
-      const encoded1 = encode(configSame, string)
-      const encoded2 = encode(configSameWrong, string)
-
-      expect(encoded1).not.toBe(encoded2)
-      expect(decode<string>(configSame, encoded1)).toBe(string)
-      expect(decode<string>(configSameWrong, encoded2)).toBe(string)
+      it.each(types)('%s should not decode with wrong key', async (_, value) => {
+        const encoded = await encode(optSame, value)
+        expect(await decode(optSameWrong, encoded)).not.toStrictEqual(value)
+      })
     })
 
-    it('supports onceConfig() for temporary configs', () => {
-      const factory = cripta(configSame)
+    describe('Randomness (entropy > 0)', () => {
+      it.each(types)('%s should always encode differently', async (_, value) => {
+        const results = await Promise.all(Array.from({ length: 6 }, async () => await encode(opt, value)))
+        expect(new Set(results).size).toBe(6)
+      })
 
-      const onceEncoded = factory.onceConfig(configSameWrong).encode(string)
-      const onceDecoded = factory.onceConfig(configSameWrong).decode(onceEncoded)
-
-      expect(onceDecoded).toBe(string)
-
-      const regularEncoded = factory.encode(string)
-      expect(factory.decode(regularEncoded)).toBe(string)
-
-      expect(onceEncoded).not.toBe(regularEncoded)
-
-      const onceEncodedRepeat = encode(configSameWrong, string)
-      expect(onceEncoded).toBe(onceEncodedRepeat)
+      it.each(types)('%s should not decode with wrong key', async (_, value) => {
+        const encoded = await encode(opt, value)
+        expect(await decode(optWrong, encoded)).not.toStrictEqual(value)
+      })
     })
   })
 
-  describe('Type round-trip validity', () => {
-    it.each(types)('%s should encode/decode correctly', (_, value) => {
-      expect(encodeAndDecode(config, value)).toStrictEqual(value)
-    })
-  })
-
-  describe('Randomness (entropy > 0)', () => {
-    it.each(types)('%s should always encode differently', (_, value) => {
-      const results = Array.from({ length: 6 }, () => encode(config, value))
-      expect(new Set(results).size).toBe(6)
+  describe('Seed', () => {
+    it.each(types)('%s should encode/decode correctly with seed', async (_, value) => {
+      expect(await encodeAndDecode(optSeeded, value)).toStrictEqual(value)
     })
 
-    it.each(types)('%s should not decode with wrong key', (_, value) => {
-      const encoded = encode(config, value)
-      expect(decode(configWrong, encoded)).not.toStrictEqual(value)
-    })
-  })
-
-  describe('Deterministic encoding (entropy = 0)', () => {
-    it.each(types)('%s should always produce the same encoded string', (_, value) => {
-      const results = Array.from({ length: 6 }, () => encode(configSame, value))
+    it.each(types)('%s should produce always the same encoded string', async (_, value) => {
+      const results = await Promise.all(Array.from({ length: 6 }, async () => await encode(optSeeded, value)))
       expect(new Set(results).size).toBe(1)
     })
 
-    it.each(types)('%s should not decode with wrong key', (_, value) => {
-      const encoded = encode(configSame, value)
-      expect(decode(configSameWrong, encoded)).not.toStrictEqual(value)
-    })
-  })
-
-  describe('Seeded deterministic encoding', () => {
-    it.each(types)('%s should encode/decode correctly with seed', (_, value) => {
-      expect(encodeAndDecode(configSeeded, value)).toStrictEqual(value)
-    })
-
-    it.each(types)('%s should produce always the same encoded string', (_, value) => {
-      const results = Array.from({ length: 6 }, () => encode(configSeeded, value))
-      expect(new Set(results).size).toBe(1)
-    })
-
-    it.each(types)('%s should not decode with wrong key', (_, value) => {
-      const encoded = encode(configSeeded, value)
-      expect(decode(configSeededWrong, encoded)).not.toStrictEqual(value)
+    it.each(types)('%s should not decode with wrong key', async (_, value) => {
+      const encoded = await encode(optSeeded, value)
+      expect(await decode(optSeededWrong, encoded)).not.toStrictEqual(value)
     })
   })
 
   describe('Seeded != Non-seeded', () => {
-    it.each(types)('%s should differ between seeded and non-seeded configs', (_, value) => {
-      const encodedSeeded = encode(configSeeded, value)
-      const encodedNonSeeded = encode(configSame, value)
+    it.each(types)('%s should differ between seeded and non-seeded configs', async (_, value) => {
+      const encodedSeeded = await encode(optSeeded, value)
+      const encodedNonSeeded = await encode(optSame, value)
 
       expect(encodedSeeded).not.toBe(encodedNonSeeded)
     })
