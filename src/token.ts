@@ -3,7 +3,7 @@ import type { Config, AcceptedValue } from './cripta'
 import { bytesToHex, randBytes, randObject } from './utils'
 import { Timestamp } from 't0n'
 
-export type Claims = Record<string, string | string[]> & { e?: string }
+export type Claims = Record<string, AcceptedValue | AcceptedValue[]> & { e?: string }
 export type Token<H = Claims, B = any> = {
   valid: boolean,
   header: H,

@@ -1,7 +1,7 @@
 {
   "name": "cripta",
   "description": "A layer of encryption a little too judicious",
-  "version": "0.260906.0",
+  "version": "0.260906.1",
   "type": "module",
   "main": "src/index.ts",
   "files": ["src"],

@@ -1,9 +1,5 @@
-import crypto from 'node:crypto'
-
 const encoder = new TextEncoder()
 const dencoder = new TextDecoder()
-// const encoder = new TextEncoder('utf-8')
-// const dencoder = new TextDecoder('utf-8', { fatal: false })// new TextDecoder('utf-8', { ignoreBOM: true })
 
 export function toBytes(val: string) {
   return encoder.encode(val) as Uint8Array
@@ -12,11 +8,7 @@ export function toString2(val: Uint8Array) {
   return dencoder.decode(val)
 }
 export function toString(val: Uint8Array) {
-  // for (let i = 0; i < val.length; i++)
-  //  val[i] = ''.charCodeAt.apply(null, val[i])
-  // return new TextDecoder().decode(val)
   return String.fromCharCode.apply(null, val as unknown as number[])
-  // return new TextDecoder('utf-8', { ignoreBOM: true }).decode(val)
 }
 
 export function randBytes(size: number) {

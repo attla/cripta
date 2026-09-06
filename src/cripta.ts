@@ -42,7 +42,7 @@ export function isValid(id: unknown) {
 }
 
 const configCache = new WeakMap<object, Config>()
-export async function config(opts: Options) {
+export async function config(opts: Options = {}) {
   if (configCache.has(opts))
     return configCache.get(opts)!
 
