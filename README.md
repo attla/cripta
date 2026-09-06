@@ -8,29 +8,19 @@
 ## Install
 
 ```bash
-# bun
 bun i cripta
-
-# pnpm
-pnpm i cripta
-
-# npm
-npm i cripta
-
-# yarn
-yarn i cripta
 ```
 
 ## Usage
 
 ```ts
-import { cripta } from 'cripta'
+import { config, encode, decode } from 'cripta'
 
-const instance = cripta({ key: 'your-secret-key' })
+const opts = await config({ key: 'your-secret-key' })
 
-const encoded = instance.encode('hic sunt dracones')
+const encoded = await encode('hic sunt dracones', opts)
 console.log('Encoded: ', encoded)
-console.log('Decoded: ', instance.decode(encoded))
+console.log('Decoded: ', await decode(encoded, opts))
 ```
 
 The Cripta can encrypt all primitive types: `array`, `object`, `string`, `number`, `bigint`, `boolean`, `Symbol`, `undefined` and `null`.
@@ -39,18 +29,18 @@ See an example of object encryption:
 
 ```ts
 // encoding
-const encoded = instance.encode({
+const encoded = await encode({
   name: 'John Doe',
   email: 'john@example.com'
-})
+}, opts)
 
 console.log('Encoded object: ', encoded)
 
 // retrieve the object from encoded value
-const decoded = instance.decode(encoded)
+const decoded = await decode(encoded, opts)
 console.log('Decoded object: ', decoded)
 ```
 
 ## License
 
-This package is licensed under the [MIT license](https://github.com/attla/cripta/blob/main/LICENSE) © [Zunq](https://zunq.com)
+This package is licensed under the [MIT license](https://github.com/attla/cripta/blob/main/LICENSE) © [HUB](https://hub.bi)
