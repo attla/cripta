@@ -1,4 +1,4 @@
-import { toBytes, toString, randBetween, randBytes } from './utils'
+import { textEncode, randBetween, randBytes } from 't0n'
 
 export type HashAlgorithm = 'SHA-1' | 'SHA-256' | 'SHA-512'
 
@@ -8,7 +8,7 @@ async function digest(
 ) {
   return crypto.subtle.digest(
     algorithm, // @ts-ignore
-    typeof data === 'string' ? toBytes(data) : data
+    typeof data === 'string' ? textEncode(data) : data
   ) as unknown as Promise<Uint8Array>
 }
 
@@ -31,10 +31,8 @@ export const HASH_LEN = 40 // max 43
 export async function hash(plain: string, salt: string = ''): Promise<string> {
   if (!plain || typeof plain !== 'string' || typeof salt !== 'string') return ''
 
-  const length = plain.length
-
   if (!salt)
-    salt = base(randBytes((SALT_MAX_LEN % length) || randBetween(SALT_MIN_LEN, SALT_MAX_LEN)))
+    salt = base(randBytes(randBetween(SALT_MIN_LEN, SALT_MAX_LEN)))
 
   const r = salt.length % 2
   const prefix = r ? salt : ''
@@ -60,7 +58,7 @@ export function getSalt(str: string) {
 }
 
 function base(data: Uint8Array): string {
-  return btoa(toString(data)).replace(/[=+]/g, char => {
+  return btoa(String.fromCharCode.apply(null, data as unknown as number[])).replace(/[=+]/g, char => {
     switch (char) {
       case '=': return ''
       case '+': return '.'

@@ -1,6 +1,6 @@
-import { Envir, toInt } from 't0n'
+import { textEncode, textDecode, randBytes, sortBySeed, toInt, getEnv } from 't0n'
 import { sha256 } from './hash'
-import { baseDecode, baseEncode, randBytes, sortBySeed, toBytes, toString, toString2 } from './utils'
+import { decodeBase64Url, encodeBase64Url } from 'hono/utils/encode'
 
 export type AcceptedValue = null | boolean | string | number | bigint | Array<any> | object | Symbol | undefined
 
@@ -46,7 +46,7 @@ export async function config(opts: Options = {}) {
   if (configCache.has(opts))
     return configCache.get(opts)!
 
-  let key = opts?.key || Envir.get<string>('APP_KEY') || Envir.get<string>('KEY')
+  let key = opts?.key || getEnv('APP_KEY') || getEnv('KEY')
   if (typeof key !== 'string' || !key)
     throw new Error('Secret key is required for use cripta.')
 
@@ -62,19 +62,19 @@ export async function config(opts: Options = {}) {
 export async function encode(data: AcceptedValue, config: Config): Promise<string> {
   const eLength = config.entropy
   const entropy = eLength ? randBytes(eLength) : undefined
-  const payload = cipher(toBytes(toText(data)), await forgeKey(config.key, entropy))
-
-  return maybeUseAlphabet(baseEncode(entropy ? new Uint8Array([
+  const payload = cipher(textEncode(toText(data)), await forgeKey(config.key, entropy))
+  // @ts-ignore
+  return maybeUseAlphabet(encodeBase64Url(entropy ? new Uint8Array([
     ...payload,
     ...entropy
   ]) : payload), baseAlphabet, config.alphabet)
 }
 
 export async function decode<T = AcceptedValue>(data: string, config: Config): Promise<T> {
-  const combined = baseDecode(maybeUseAlphabet(data, config.alphabet, baseAlphabet))
+  const combined = decodeBase64Url(maybeUseAlphabet(data, config.alphabet, baseAlphabet))
   const eLength = config.entropy
 
-  return convert(toString2(cipher(
+  return convert(textDecode(cipher(
     eLength ? combined.subarray(0, -eLength) : combined,
     await forgeKey(config.key, eLength ? combined.subarray(-eLength) : undefined)
   ))) as T

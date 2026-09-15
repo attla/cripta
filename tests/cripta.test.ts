@@ -1,5 +1,5 @@
 import { config, encode as $encode, decode as $decode } from '@/cripta'
-import type { Config, Options } from '@/cripta'
+import type { Options } from '@/cripta'
 import { string, opt } from './dataset'
 import { types } from './testcase'
 

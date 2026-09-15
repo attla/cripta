@@ -1,6 +1,6 @@
 import * as hash from '@/hash'
 import { strings } from './testcase'
-import { bytesToHex } from '@/utils'
+import { bytesToHex } from 't0n'
 
 const plain = '今、私はH&wNàáâãäÀÁÂÃÄ çÇ èéêëÈÉÊË ìíîïÌÍÎÏ ñÑ òóôõöÒÓÔÕÖ ùúûüÙÚÛÜ ýÿÝowIambecomDea*()\\][+={}/|:;"\'<>,.?-_th,th0e123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZdestroyerofworlds.अब मैं मृत्यु बन गया हूँ, संसारों का नाश करने वाला।`~!@#$%^&现在我变成了死神，世界的毁灭者。àáâãäÀÁÂÃÄ çÇ èéêëÈÉÊË �ìíîïÌÍÎÏ ñÑ òóôõöÒÓÔÕÖ ùúûüÙÚÛÜ ýÿÝ'
 const dataset = {

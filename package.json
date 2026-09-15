@@ -1,7 +1,7 @@
 {
   "name": "cripta",
   "description": "A layer of encryption a little too judicious",
-  "version": "0.260906.1",
+  "version": "0.260915.0",
   "type": "module",
   "main": "src/index.ts",
   "files": ["src"],
@@ -13,6 +13,7 @@
     "bench": "bun run tests/benchmark/cripta.bench.ts"
   },
   "dependencies": {
+    "hono": "catalog:",
     "t0n": "0.x"
   },
   "devDependencies": {

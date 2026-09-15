@@ -1,7 +1,6 @@
 import { config, encode, decode } from './cripta'
+import { Timestamp, bytesToHex, randBytes, randObject } from 't0n'
 import type { Config, AcceptedValue } from './cripta'
-import { bytesToHex, randBytes, randObject } from './utils'
-import { Timestamp } from 't0n'
 
 export type Claims = Record<string, AcceptedValue | AcceptedValue[]> & { e?: string }
 export type Token<H = Claims, B = any> = {
